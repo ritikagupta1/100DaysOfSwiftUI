@@ -12,6 +12,19 @@ enum LengthUnits: String,CaseIterable {
     case kilometers = "km"
     case feet = "feet"
     case miles = "miles"
+    
+    var correspondingUnit: UnitLength {
+        switch self {
+        case .meters:
+            return .meters
+        case .kilometers:
+            return .kilometers
+        case .feet:
+            return .feet
+        case .miles:
+            return .miles
+        }
+    }
 }
 
 
@@ -24,28 +37,9 @@ struct ContentView: View {
     
     
     var convertedValue: Double {
-        var feetValue: Double
-        switch inputUnit {
-        case .meters:
-            feetValue =  3.28084 * inputValue
-        case .kilometers:
-            feetValue =  3280.84 * inputValue
-        case .feet:
-            feetValue =   inputValue
-        case .miles:
-            feetValue =  5280  * inputValue
-        }
+        let inputValue = Measurement(value: inputValue , unit: inputUnit.correspondingUnit)
         
-        switch outputUnit {
-        case .meters:
-            return feetValue/3.28084
-        case .kilometers:
-            return feetValue/3280.84
-        case .feet:
-            return feetValue
-        case .miles:
-            return feetValue/5280
-        }
+        return inputValue.converted(to: outputUnit.correspondingUnit).value
     }
     
     
@@ -75,7 +69,7 @@ struct ContentView: View {
                 }
                 
                 Section("Converted Value") {
-                    Text(convertedValue, format: .number)
+                    Text(convertedValue.formatted(.number.precision(.fractionLength(2))))
                 }
             }
             .navigationTitle("Convert")
