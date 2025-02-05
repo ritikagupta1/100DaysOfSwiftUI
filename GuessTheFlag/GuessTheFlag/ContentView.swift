@@ -16,6 +16,9 @@ struct ContentView: View {
     
     @State private var score: Int = 0
     
+    @State private var shouldRestartGame: Bool = false
+    @State private var questionCount = 0
+    
     var body: some View {
         ZStack {
             RadialGradient(
@@ -66,6 +69,13 @@ struct ContentView: View {
             }
             .padding()
         }
+        .alert(scoreTitle, isPresented: $shouldRestartGame, actions: {
+            Button("Restart") {
+                self.restartGame()
+            }
+        }, message: {
+            Text("Game over! You guessed \(score) out of 8 flags")
+        })
         .alert(scoreTitle, isPresented: $isShowingScore) {
             Button("Continue") {
                 self.askQuestion()
@@ -73,23 +83,36 @@ struct ContentView: View {
         } message: {
             Text("Your score is \(score)")
         }
-
     }
     
     
     func submitAnswer(_ number: Int) {
+        questionCount += 1
         if number == correctAns {
-            scoreTitle = "Right Answer"
+            scoreTitle = "Right Answer 🎊"
             score += 1
         } else {
-            scoreTitle = "Wrong Answer"
+            let wrongAns = countries[number]
+            scoreTitle = "Wrong! That's the flag of \(wrongAns)"
         }
-        isShowingScore = true
+        
+        if questionCount == 8 {
+            shouldRestartGame = true
+        } else {
+            isShowingScore = true
+        }
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAns = Int.random(in: 0...2)
+    }
+    
+    func restartGame() {
+        countries.shuffle()
+        score = 0
+        questionCount = 0
+        shouldRestartGame = false
     }
 }
 
