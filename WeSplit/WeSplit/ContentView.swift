@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var checkAmount = 0.0
     @State private var numberOfPeople: Int = 2
     @State private var tipPercentage: Int = 20
-    
+
     @FocusState private var amountIsFocussed: Bool
     
     var tipPercentageOptions: [Int] = [0,10,15,20]
@@ -52,6 +52,7 @@ struct ContentView: View {
                 }
                 Section("Total Amount") {
                     Text(totalAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                        .foregroundStyle(tipPercentage == 0 ? .red : .green)
                 }
                 
                 Section("Amount per person") {

@@ -49,9 +49,7 @@ struct ContentView: View {
                         Button {
                             submitAnswer(number)
                         } label: {
-                            Image(countries[number])
-                                .clipShape(.capsule)
-                                .shadow(radius: 6)
+                            FlagImageView(imageName: countries[number])
                         }
                     }
                 }
@@ -118,4 +116,13 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+struct FlagImageView: View {
+    let imageName: String
+    var body: some View {
+        Image(imageName)
+            .clipShape(.capsule)
+            .shadow(radius: 6)
+    }
 }
