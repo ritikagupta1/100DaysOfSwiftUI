@@ -16,6 +16,8 @@ struct ContentView: View {
     @State private var errorMessage: String = ""
     @State private var isShowingError: Bool = false
     
+    @State private var score: Int = 0
+    
     var body: some View {
         NavigationStack {
             List {
@@ -35,6 +37,22 @@ struct ContentView: View {
                     }
                 }
             }
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        startGame()
+                    } label: {
+                        Image(systemName: "repeat.circle")
+                            .font(.system(size: 20))
+                            .tint(.primary)
+                    }
+                }
+                ToolbarItem {
+                    Text("\(score) Points")
+                        .foregroundStyle(.primary)
+                        .fontWeight(.semibold)
+                }
+            }
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $isShowingError, actions: {
@@ -44,11 +62,17 @@ struct ContentView: View {
             })
             .navigationTitle(rootWord)
         }
+        
     }
     
     func addNewWord() {
         let word = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         guard word.count > 0 else { return }
+        
+        guard isValidLength(word: word)else {
+            wordError(title: "Word should be at-least of 3 length", message: "Keep Going")
+            return
+        }
         
         guard isOriginal(word: word) else {
             wordError(title: "Word used already", message: "Be more original")
@@ -66,6 +90,7 @@ struct ContentView: View {
         }
         withAnimation {
             usedWords.insert(word, at: 0)
+            calculateScore()
         }
         
         newWord = ""
@@ -78,15 +103,19 @@ struct ContentView: View {
 
                 let randomWord = allWords.randomElement() ?? "silkworm"
                 rootWord = randomWord
+                score = 0
                 return
             }
         }
         
         fatalError("Couldn't load start.txt file")
     }
+    func isValidLength(word: String) -> Bool {
+        word.count >= 3
+    }
     
     func isOriginal(word: String) -> Bool {
-        !usedWords.contains(word)
+        !usedWords.contains(word) && word != rootWord
     }
     
     func isPossible(word: String) -> Bool {
@@ -114,6 +143,15 @@ struct ContentView: View {
         errorTitle = title
         errorMessage = message
         isShowingError = true
+    }
+    
+    func calculateScore() {
+        score = usedWords.reduce(0) { partialResult, word in
+            partialResult + word.count + 1
+        }
+//        score = usedWords.reduce(into: 0, { partialResult, word in
+//            partialResult += word.count + 1
+//        })
     }
 }
 
